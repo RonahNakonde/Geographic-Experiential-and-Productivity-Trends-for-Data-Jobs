@@ -342,7 +342,7 @@ There are salary variations based on experience levels, with executives that wor
 
 Geographic Insights
 
-There is a predominance of data jobs in the United States, followed by the UK and Canada. The highest paying jobs in the top 10 countries with data jobs are in-person(in-office)
+There is a predominance of data jobs in the United States, followed by the UK and Canada. The highest paying jobs in the top 10 countries with data jobs are in-person(in-office).
 
 Impact of Work Settings on Productivity
 
