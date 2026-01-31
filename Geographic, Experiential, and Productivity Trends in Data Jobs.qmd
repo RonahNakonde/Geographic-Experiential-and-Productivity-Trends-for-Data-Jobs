@@ -72,8 +72,8 @@ htmlwidgets::saveWidget(flowchart, "flowchart.html") #I have had to do it this w
 
 The two datasets were downloaded from the "data" folder that is present in my github repository.
 ```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
-jobs_data <- read_csv("https://raw.githubusercontent.com/RonahNakonde/Geographic-Experiential-and-Productivity-Trends-in-Data-Jobs/main/data/jobs_in_data.csv") 
-productivity_data <- read_csv("https://raw.githubusercontent.com/RonahNakonde/Geographic-Experiential-and-Productivity-Trends-in-Data-Jobs/main/data/remote_work_productivity.csv") 
+jobs_data <- read_csv("https://raw.githubusercontent.com/RonahNakonde/Geographic-Experiential-and-Productivity-Trends-for-Data-Jobs/main/data/jobs_in_data.csv") 
+productivity_data <- read_csv("https://raw.githubusercontent.com/RonahNakonde/Geographic-Experiential-and-Productivity-Trends-for-Data-Jobs/main/data/remote_work_productivity.csv") 
 ```
 
 ## Descriptive Statistics
