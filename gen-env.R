@@ -14,8 +14,10 @@ rix(
     "gridExtra",
     "DiagrammeR",
     "DiagrammeRsvg",
-    "rsvg"
+    "rsvg",
+    "quarto" 
   ),
+  system_pkgs = c("quarto"),
   py_conf = list(
     py_version = "3.13",
     py_pkgs = c("polars", "great-tables")
