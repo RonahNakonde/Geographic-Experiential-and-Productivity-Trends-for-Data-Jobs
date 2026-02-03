@@ -30,6 +30,7 @@ source("gen-env.R")
 
 - **R:** tidyverse, ggplot2, scales, forcats, svglite, viridis, gtExtras, gridExtra, DiagrammeR, DiagrammeRsvg, rsvg
 - **Python:** polars, great-tables
+- **System packages:** quarto
 
 ## To Reproduce
 ```bash
@@ -43,7 +44,14 @@ cd Geographic-Experiential-and-Productivity-Trends-for-Data-Jobs
 # 3. Build environment
 nix-build
 
-# 4. Render analysis
+# 4. Render Analysis
+```
+**Option A - Using Quarto directly:**
+```bash
+nix-shell --run "quarto render 'Geographic, Experiential, and Productivity Trends in Data Jobs.qmd'"
+```
+**Option B - Using R:**
+```bash
 nix-shell --run "Rscript -e 'rmarkdown::render(\"Geographic, Experiential, and Productivity Trends in Data Jobs.qmd\")'"
 ```
 
