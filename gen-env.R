@@ -15,6 +15,7 @@ rix(
     "DiagrammeR",
     "DiagrammeRsvg",
     "rsvg",
+    "rmarkdown",
     "quarto" 
   ),
   system_pkgs = c("quarto"),
