@@ -5,7 +5,11 @@ format: html
 self-contained: true
 editor: visual
 ---
-
+```{r setup, include=FALSE}
+# Source analysis scripts
+source("data_analysis.R")
+source("visualization_functions.R")
+```
 
 ## About the datasets
 
@@ -21,313 +25,82 @@ The analysis aims to understand the impact of remote work on productivity and th
 
 My motivation for exploring data sets on job trends in data arises from the recent wave of layoffs in the tech industry during 2023-2024. This situation has sparked a debate among major tech CEOs, who argue that remote work diminishes productivity and that the same level of output can be achieved when employees are in the office. I aim to investigate whether this claim holds true by analyzing job trends in data science.
 
-
-```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
-library(tidyverse)
-library(ggplot2)
-library(scales)
-library(forcats)
-library(svglite)
-library(viridis)
-library(gtExtras)
-library(gridExtra)
-library(DiagrammeR)
-library(DiagrammeRsvg)
-library(rsvg)
-
-```
-
 ## Presentation Flow
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-flowchart <- grViz("
-digraph flowchart {
-  graph [layout = dot, rankdir = TB]
-  
-  node [shape = rectangle, style = filled, fillcolor = LightBlue, fontsize = 12]
-  
-  A [label = 'Import Data\n(Data Jobs & Productivity Datasets)']
-  B [label = 'Data Cleaning & Preparation\n(Remove Duplicates, Handle Missing Values)']
-  C [label = 'Exploratory Analysis\n(Distributions, Ratios, Correlations)']
-  D [label = 'Visualizations\n(Salary Distributions, Experience Levels And\n Geographic Locations Among Work Settings)']
-  E [label = 'Insights & Relationships\n(Remote Work Impact on Productivity and Well Being)']
-  F [label = 'Conclusions']
-
-  A -> B
-  B -> C
-  C -> D
-  D -> E
-  E -> F
-}
-")
-# Save the flowchart as an HTML file
+flowchart <- create_flowchart()
 svg_code <- export_svg(flowchart)
 writeLines(svg_code, "flowchart.svg")
-htmlwidgets::saveWidget(flowchart, "flowchart.html") #I have had to do it this way in order for the flowchart to be seen when I render
+htmlwidgets::saveWidget(flowchart, "flowchart.html")
 ```
-<iframe src="flowchart.html" width="100%" height="500px">
 
-</iframe>
+<iframe src="flowchart.html" width="100%" height="500px"></iframe>
 
 ## Importing the Data
 
 The two datasets were downloaded from the "data" folder that is present in my github repository.
-```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
-jobs_data <- read_csv("https://raw.githubusercontent.com/RonahNakonde/Geographic-Experiential-and-Productivity-Trends-for-Data-Jobs/main/data/jobs_in_data.csv") 
-productivity_data <- read_csv("https://raw.githubusercontent.com/RonahNakonde/Geographic-Experiential-and-Productivity-Trends-for-Data-Jobs/main/data/remote_work_productivity.csv") 
-```
 
 ## Descriptive Statistics
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Calculate summary statistics for the numeric variables
-numeric_summary <- jobs_data |> 
-  summarise( min_salary_usd = min(salary_in_usd, na.rm = TRUE),
-    max_salary_usd = max(salary_in_usd, na.rm = TRUE),
-    mean_salary_usd = mean(salary_in_usd, na.rm = TRUE),
-    median_salary_usd = median(salary_in_usd, na.rm = TRUE),
-    sd_salary_usd = sd(salary_in_usd, na.rm = TRUE))
-
-# Create a frequency count for categorical variables
-categorical_summary <- jobs_data |> 
-  summarise(
-    unique_work_years = n_distinct(work_year),
-    unique_company_locations = n_distinct(company_location),
-    unique_company_sizes = n_distinct(company_size),
-    experience_levels = n_distinct(experience_level),
-    work_settings = n_distinct(work_setting))
-
-# Combine summaries into a single table
-combined_summary <- tibble(
-  Statistic = c(
-    "Min Salary (USD)", "Max Salary (USD)", "Mean Salary (USD)", "Median Salary (USD)", "SD Salary (USD)",
-    "Unique Work Years", "Unique Company Locations", "Unique Company Sizes", "Experience Levels", "Work Settings"),
-  Value = c(numeric_summary$min_salary_usd, numeric_summary$max_salary_usd, numeric_summary$mean_salary_usd, 
-    numeric_summary$median_salary_usd, numeric_summary$sd_salary_usd,
-    categorical_summary$unique_work_years, categorical_summary$unique_company_locations, categorical_summary$unique_company_sizes, categorical_summary$experience_levels, categorical_summary$work_settings))
-
-# Create the combined table using gtExtras
-summary_table <- combined_summary |> 
-  gt() |> 
-  tab_header(title = "Descriptive Statistics for Data Jobs Dataset") |> 
-  fmt_number(columns = Value, decimals = 0)
-summary_table
-
+create_summary_table(combined_summary)
 ```
 
 ## Distribution of Jobs Among the different Data Categories
-
-```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
-jobs_summary <- jobs_data |> 
-  count(job_category, work_setting, name = "count")
-```
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-jobs_summary1 <- jobs_summary |> 
-  group_by(job_category) |> 
-  mutate(total_count = sum(count)) |> 
-  ungroup() |> 
-  mutate(job_category = fct_reorder(job_category, total_count, .desc = TRUE))
-  
-  job_category_summary <- jobs_summary1 |> 
-    group_by(job_category) |> 
-    summarise(total_count = sum(count), .groups = "drop")
-  
-# Create the gt table 
-jobs_summary_table <- job_category_summary |> 
-  gt() |> 
-  gt_plt_bar(column = total_count, width = 70) |> 
-  cols_label(job_category = "Job Category",total_count = "Total Count of Jobs")
-
-jobs_summary_table 
-
+create_jobs_summary_table(job_category_summary)
 ```
 
 ## Data Jobs Trends From 2020 to 2023
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Summarize the data to get counts of jobs per year for each job category
-jobs_summary_facet <- jobs_data |> 
-  group_by(job_category, work_year) |> 
-  summarise(count = n(), .groups = "drop")
-
-# Create faceted line graph
-facet_line_graph <- ggplot(jobs_summary_facet, aes(x = work_year, y = count)) +
-  geom_line(size = 1) +
-  facet_wrap(~ job_category, scales = "free_y", labeller = label_wrap_gen(width = 10)) +
-  scale_color_viridis_d(option = "D") + 
-  labs(title = "Distribution of Data Jobs From 2020 To 2023", x = "Year", y = NULL) +
-  theme_minimal() +
-  theme(
-    strip.text = element_text(size = 10, face = "bold"),
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    panel.grid.minor = element_blank()
-  )
-
-# Print the plot
-facet_line_graph
+create_jobs_trend_plot(jobs_summary_facet)
 ```
 
 ## Distribution of Work Settings Amongst Job Categories
-
-```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
-#Showing the distribution of work setting in the different job categories
-ggplot(jobs_summary1, aes(y = job_category, x = count, fill = work_setting)) +
-  geom_col(position = "fill") +  
-  scale_x_continuous(labels = scales::percent) +  # Convert x-axis to percentage
-  scale_fill_viridis(discrete = TRUE, option = "D") + 
-  labs(x = NULL, y = NULL,fill = "Work Setting") +
-  theme_classic()
-  
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+create_work_settings_plot(jobs_summary1)
 ```
 
 ## Distribution of Jobs Among Company Sizes by Work Setting
-
-```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
-jobs_data_company_size <- jobs_data |> 
-  group_by(company_size, work_setting) |> 
-  count()
-
-ggplot(jobs_data_company_size, aes(x = company_size, y = n, fill = work_setting)) +
- geom_bar(stat = "identity")  +  
-  scale_fill_viridis_d() + 
-  labs(x = "Company Size", y = "Total Data Jobs", fill = "Work Setting") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+create_company_size_plot(jobs_data_company_size)
 ```
 
 ## Salary Distribution by Experience level and Work Setting
-
-```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
-# Create the box plot with viridis color palette
-ggplot(jobs_data, aes(x = reorder(experience_level, -as.numeric(salary_in_usd)), y = as.numeric(salary_in_usd), fill = work_setting)) +
-  geom_boxplot() +
-  scale_fill_viridis(discrete = TRUE) +
-  labs(x = "Experience Level",
-       y = "Salary (USD)") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+create_salary_boxplot(jobs_data)
 ```
 
 ## Distribution of Jobs Amongst top 15 Company Location
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Calculate the total number of jobs per country and the proportion
-country_proportions <- jobs_data |> 
-  group_by(company_location) |> 
-  summarise(count = n(), .groups = 'drop') |> 
-  arrange(desc(count)) |> 
-  slice(1:15) |> 
-  mutate(proportion = count / sum(count)) 
-
-# Display this table using gt
-country_proportions_table <- country_proportions |> 
-  gt() |> 
-  tab_header(title = "Proportions of Jobs in Different Countries") |> 
-  cols_label(company_location = "Country", 
-             count = "Job Count", 
-             proportion = "Proportion of Total Jobs") |> 
-  fmt_percent(columns = vars(proportion), decimals = 2) |> 
-  tab_spanner(label = "Job Count Proportions", columns = vars(count, proportion))
-
-# Display the table
-country_proportions_table
+create_country_table(country_proportions)
 ```
 
 I chose to use company Location as opposed to the employee residence because for employees that work remotely, their residence is not representative of the company location or the country offering the job. Here I chose a cutoff point of 15 since majority of the jobs are concentrated in the top 5 company locations.
 
 ## Average Salary Heatmap by Company Location and Work Setting
-
-```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
-# Get the top 10 countries by job count
-top_countries <- jobs_data |> 
-  group_by(company_location) |> 
-  summarise(count = n(), .groups = 'drop') |> 
-  arrange(desc(count)) |> 
-  slice(1:10) |> 
-  pull(company_location)
-
-# Filter the original data for these top countries
-filtered_data <- jobs_data |> 
-  filter(company_location %in% top_countries)
-
-# Summarize the data with proportions and average salary
-proportions_usd_data <- filtered_data |> 
-  group_by(company_location, work_setting) |> 
-  summarise(
-    count = n(),                                   
-    avg_salary = mean(salary_in_usd, na.rm = TRUE), # Average salary in USD
-    .groups = 'drop'                               
-  ) |> 
-  group_by(company_location) |> 
-  mutate(
-    proportion = count / sum(count)               # Calculate the proportion of each work setting
-  )
-
-ggplot(proportions_usd_data, aes(x = company_location, y = work_setting, fill = avg_salary)) +
-  geom_tile() +
-  scale_fill_viridis(name = "Average Salary (USD)") +
-  labs(x = "Company Location",
-    y = "Work Setting"
-  ) +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1))
-
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+create_salary_heatmap(proportions_usd_data)
 ```
 
 ## Summary of Productivity Dataset
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-# Calculate summary statistics
-summary_table_productivity <- productivity_data |> 
-  group_by(Employment_Type) |> 
-  summarize(`Average Hours Worked` = mean(Hours_Worked_Per_Week, na.rm = TRUE),
-    `Average Productivity Score` = mean(Productivity_Score, na.rm = TRUE),
-    `Average Well-Being Score` = mean(Well_Being_Score, na.rm = TRUE)
-  )
-
-# Create a table with gt and gtExtras
-summary_table_productivity |> 
-  gt() |> 
-  tab_header(title = "Summary of Productivity Dataset Metrics by Employment Type") |> 
-  fmt_number( columns = -Employment_Type, decimals = 2) |> 
-  gt_theme_538() 
+create_productivity_table(summary_table_productivity)
 ```
 
 ## Relationship Between Hours Worked and Productivity
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-Productivity_plot <- ggplot(productivity_data, aes(x = Productivity_Score, y = Hours_Worked_Per_Week, color = Employment_Type)) +
-  geom_point(alpha = 0.7, size = 3) +  # Semi-transparent points for better readability
-  scale_color_viridis_d(option = "D") +  
-  labs(x = "Productivity Score", y = "Hours Worked Per Week", color = "Employment Type") +
-  geom_smooth(method = "lm", se = FALSE, color = "red", linetype = "dashed") +
-  theme_minimal() +
-  theme(
-    axis.text.x = element_text(angle = 45, hjust = 1),
-    legend.position = "bottom")
-Productivity_plot
+create_productivity_plot(productivity_data)
 ```
 
 # Correlation
-
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
-cor.test(productivity_data$`Productivity_Score`, productivity_data$`Hours_Worked_Per_Week`)
-
+productivity_correlation
 ```
 
-We observe a weak negative correlation (r=−0.2545) between the productivity score and hours worked per week. This indicates that as hours worked increase, productivity scores tend to slightly decrease. The correlation is also statistically significant (p\<0.001), meaning there is strong evidence in support of the negative relationship and it is unlikely to have occurred by chance.
+We observe a weak negative correlation (r=−0.2545) between the productivity score and hours worked per week. This indicates that as hours worked increase, productivity scores tend to slightly decrease. The correlation is also statistically significant (p<0.001), meaning there is strong evidence in support of the negative relationship and it is unlikely to have occurred by chance.
 
 ## Well Being Score Distribution by Employment Type
-
-```{r echo=FALSE, results='hide', message=FALSE, warning=FALSE}
-ggplot(productivity_data, aes(x = Employment_Type, y = Well_Being_Score, fill = Employment_Type)) +
-  geom_violin(trim = FALSE) +  
-  scale_fill_viridis_d() + 
-  labs(y = "Well Being Score",
-    x = "Employment Type") +
-  theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, hjust = 1),
-        legend.position = "none")
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+create_wellbeing_plot(productivity_data)
 ```
 
 ## Conclusions
