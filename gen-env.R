@@ -2,7 +2,7 @@
 library(rix)
 
 rix(
-  date = "2025-09-22",  # snapshot date for reproducibility
+  date = "2026-02-03",  # snapshot date for reproducibility
   r_pkgs = c(
     "tidyverse",
     "ggplot2",
