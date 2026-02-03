@@ -56,11 +56,12 @@ nix-shell --run 'Rscript -e "rmarkdown::render(\"Geographic, Experiential, and P
 ```
 
 ## Files
-
 | File | Description |
 |------|-------------|
-| `.qmd` | Quarto analysis |
+| `Geographic, Experiential, and Productivity Trends in Data Jobs.qmd` | Main Quarto analysis document |
+| `data_analysis.R` | Data loading and processing script |
+| `visualization_functions.R` | Visualization and table generation functions |
 | `default.nix` | Environment definition |
 | `gen-env.R` | Generates Nix config |
 | `data/` | Datasets used |
-| `.pptx` | Presentation slides |
+| `slides.pptx` | Presentation slides |
