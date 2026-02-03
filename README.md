@@ -48,11 +48,11 @@ nix-build
 ```
 **Option A - Using Quarto directly:**
 ```bash
-nix-shell --run "quarto render 'Geographic, Experiential, and Productivity Trends in Data Jobs.qmd'"
+nix-shell --run 'quarto render "Geographic, Experiential, and Productivity Trends in Data Jobs.qmd"'
 ```
 **Option B - Using R:**
 ```bash
-nix-shell --run "Rscript -e 'rmarkdown::render(\"Geographic, Experiential, and Productivity Trends in Data Jobs.qmd\")'"
+nix-shell --run 'Rscript -e "rmarkdown::render(\"Geographic, Experiential, and Productivity Trends in Data Jobs.qmd\")"'
 ```
 
 ## Files
