@@ -15,10 +15,11 @@ rix(
     "DiagrammeR",
     "DiagrammeRsvg",
     "rsvg",
+    "reticulate",
     "rmarkdown",
     "quarto" 
   ),
-  system_pkgs = c("quarto", "git"),
+  system_pkgs = c("quarto", "git"),  # system packages to include
   py_conf = list(
     py_version = "3.13",
     py_pkgs = c("polars", "great-tables")
@@ -26,6 +27,6 @@ rix(
   ide = "none",         # change to "vscode" if you use VS Code with R
   project_path = ".",   # current project directory
   overwrite = TRUE,     # overwrite existing Nix files if needed
-  print = TRUE          # print the generated Nix expression in the console
+  print = TRUE,          # print the generated Nix expression in the console 
 )
 
