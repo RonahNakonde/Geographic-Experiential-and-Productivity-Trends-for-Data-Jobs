@@ -14,8 +14,8 @@ library(DiagrammeRsvg)
 library(rsvg)
 
 # Import Data
-jobs_data <- read_csv("https://raw.githubusercontent.com/RonahNakonde/Geographic-Experiential-and-Productivity-Trends-in-Data-Jobs/main/data/jobs_in_data.csv") 
-productivity_data <- read_csv("https://raw.githubusercontent.com/RonahNakonde/Geographic-Experiential-and-Productivity-Trends-in-Data-Jobs/main/data/remote_work_productivity.csv") 
+jobs_data <- read_csv("data/jobs_in_data.csv") 
+productivity_data <- read_csv("data/remote_work_productivity.csv") 
 
 # Descriptive Statistics
 numeric_summary <- jobs_data |> 
