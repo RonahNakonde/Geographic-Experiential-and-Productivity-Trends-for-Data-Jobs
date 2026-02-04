@@ -2,7 +2,7 @@
 library(rix)
 
 rix(
-  date = "2026-02-03",  # snapshot date for reproducibility
+  date = "2026-02-02",  # snapshot date for reproducibility
   r_pkgs = c(
     "tidyverse",
     "ggplot2",
@@ -18,7 +18,7 @@ rix(
     "rmarkdown",
     "quarto" 
   ),
-  system_pkgs = c("quarto"),
+  system_pkgs = c("quarto", "git"),
   py_conf = list(
     py_version = "3.13",
     py_pkgs = c("polars", "great-tables")
