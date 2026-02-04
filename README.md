@@ -64,4 +64,3 @@ nix-shell --run 'Rscript -e "rmarkdown::render(\"Geographic, Experiential, and P
 | `default.nix` | Environment definition |
 | `gen-env.R` | Generates Nix config |
 | `data/` | Datasets used |
-| `slides.pptx` | Presentation slides |
